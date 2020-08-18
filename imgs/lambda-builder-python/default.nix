@@ -3,8 +3,8 @@ let
   nwi = import ../../nwi.nix;
   pkgs = import ../../pin { snapshot = "nixos-20-03_0"; };
   lib = pkgs.lib;
-  script = pkgs.writeScriptBin "lambda-build" ( builtins.readFile  ./scripts/lambda-build.sh );
-  contents = with pkgs; [ cacert coreutils curl bash wget zip unzip awscli which utillinux script importedPythonPkgs ];
+  build-script = pkgs.writeScriptBin "lambda-build" ( builtins.readFile  ./scripts/lambda-build.sh );
+  contents = with pkgs; [ awscli bash cacert coreutils curl gnugrep wget zip unzip which utillinux build-script importedPythonPkgs ];
   importedPythonPkgs = with pkgs; python38.withPackages (pythonPkgs: with pythonPkgs; [
     # other python packages you want
     pip
@@ -18,6 +18,7 @@ pkgs.dockerTools.buildImage {
   tag = "latest";
   runAsRoot = ''
       #!${pkgs.runtimeShell}
+      ${pkgs.dockerTools.shadowSetup}
       # ci breaks if it doesnt find a linux release file
       echo "ID=alpine" > /etc/os-release
   '';
